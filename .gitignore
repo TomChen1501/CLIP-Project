@@ -3,4 +3,5 @@ uploaded_images/
 *.log
 *.tmp
 Resource/
-test.py
+test.*
+clip_project_env/
