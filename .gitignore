@@ -5,3 +5,4 @@ uploaded_images/
 Resource/
 test.*
 clip_project_env/
+*.pt
