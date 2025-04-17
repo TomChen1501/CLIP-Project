@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>K-Nearest Image Search Demo</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            max-width: 900px;
+            margin: auto;
+        }
+        h2, h3 {
+            margin-top: 30px;
+        }
+        #results img, #uploadedImage img {
+            transition: transform 0.2s;
+        }
+        #results img:hover {
+            transform: scale(1.05);
+        }
+        .image-box {
+            margin: 10px;
+            text-align: center;
+        }
+        .drop-zone {
+            border: 2px dashed #aaa;
+            padding: 40px;
+            text-align: center;
+            color: #777;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .drop-zone.dragover {
+            border-color: #333;
+            color: #333;
+            background-color: #f0f0f0;
+        }
+        .loading {
+            font-size: 18px;
+            color: #444;
+            margin-top: 20px;
+            display: none;
+        }
+        .spinner {
+            border: 5px solid #eee;
+            border-top: 5px solid #333;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h2>Upload an Image</h2>
+    <input type="file" id="fileInput" accept="image/*" style="margin-bottom: 10px;" />
+    <button onclick="uploadImage()">Upload</button>
+
+    <!-- Drag-and-Drop Upload Area -->
+    <div id="dropZone" class="drop-zone">
+        <span id="dropText">Or drag and drop an image here</span>
+    </div>
+
+    <!-- Loading Message With Spinner -->
+    <div id="loadingMessage" class="loading">
+        <div class="spinner"></div>
+        <p>Loading... Please wait.</p>
+    </div>
+
+    <div id="uploadedImageSection">
+        <h3>Uploaded Image:</h3>
+        <div id="uploadedImage"></div>
+    </div>
+
+    <div id="similarImagesSection">
+        <h3>Most Similar Images:</h3>
+        <div id="results" style="display: flex; flex-wrap: wrap;"></div>
+    </div>
+
+    <script>
+        let droppedFile = null;
+
+        async function uploadImage() {
+            const input = document.getElementById('fileInput');
+            const file = droppedFile || input.files[0];
+
+            if (!file) {
+                alert("Please select or drop a file first.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            // Display uploaded image
+            const uploadedImageURL = URL.createObjectURL(file);
+            document.getElementById('uploadedImage').innerHTML = `
+                <img src="${uploadedImageURL}" style="width: 200px; margin-bottom: 20px;" />
+            `;
+
+            // Show loading
+            document.getElementById("loadingMessage").style.display = "block";
+            document.getElementById("results").innerHTML = '';
+
+            try {
+                const response = await fetch('/upload/', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const result = await response.json();
+                displayResults(result.nearest_images);
+            } catch (error) {
+                alert("Something went wrong. Please try again.");
+            } finally {
+                document.getElementById("loadingMessage").style.display = "none";
+                droppedFile = null;
+            }
+        }
+
+        function displayResults(images) {
+            const results = document.getElementById('results');
+            results.innerHTML = '';
+            images.forEach(imgPath => {
+                const filename = imgPath.split('/').pop();
+                const box = document.createElement('div');
+                box.className = 'image-box';
+
+                const img = document.createElement('img');
+                img.src = imgPath;
+                img.style.width = '180px';
+                img.style.borderRadius = '10px';
+                img.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+
+                const label = document.createElement('div');
+                label.textContent = filename;
+                label.style.marginTop = '5px';
+                label.style.fontSize = '14px';
+
+                box.appendChild(img);
+                box.appendChild(label);
+                results.appendChild(box);
+            });
+        }
+
+        // Drag and Drop Functionality
+        const dropZone = document.getElementById('dropZone');
+        const dropText = document.getElementById('dropText');
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+            dropText.textContent = "Drop to upload";
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+            dropText.textContent = "Or drag and drop an image here";
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            dropText.textContent = "Or drag and drop an image here";
+            droppedFile = e.dataTransfer.files[0];
+
+            document.getElementById('fileInput').value = '';  // reset input
+            uploadImage();  // auto-upload on drop
+        });
+    </script>
+</body>
+</html>
