@@ -4,6 +4,8 @@ import clip
 from PIL import Image
 import torch
 from tqdm import tqdm
+import gdown
+import zipfile
 
 # Reading data from the file
 file_path = 'Resource/list_attr_celeba.txt'
@@ -67,6 +69,24 @@ def load_database_embeddings(image_dir='Resource/img_align_celeba/img_align_cele
     
     encoded_features = torch.cat(encoded_features)
     return all_images_filename, encoded_features
+
+def ensure_file_exists(file_path, url):
+    if not os.path.exists(file_path):
+        print(f"File {file_path} not found. Downloading from {url}...")
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        gdown.download(url, file_path, quiet=False)
+        print(f"File {file_path} downloaded successfully.")
+    else:
+        print(f"File {file_path} already exists.")
+
+def unzip_file(zip_path, extract_dir):
+    if not os.path.exists(extract_dir):
+        print(f"Unzipping {zip_path} into {extract_dir}...")
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(extract_dir)
+        print("Unzipping completed.")
+    else:
+        print(f"{extract_dir} already exists, skipping unzip.")
 
 def main():
     df = load_celeb_attribute()
