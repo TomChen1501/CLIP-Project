@@ -7,24 +7,24 @@ from tqdm import tqdm
 import gdown
 import zipfile
 
-# Reading data from the file
-file_path = 'Resource/list_attr_celeba.txt'
-with open(file_path, 'r') as file:
-    lines = file.readlines()
+# # Reading data from the file
+# file_path = 'Resource/list_attr_celeba.txt'
+# with open(file_path, 'r') as file:
+#     lines = file.readlines()
 
-# Extracting attribute names
-attributes = lines[1].strip().split()
+# # Extracting attribute names
+# attributes = lines[1].strip().split()
 
-# Parsing the image data
-data = []
-for line in lines[2:]:
-    parts = line.strip().split()
-    filename = parts[0]
-    labels = list(map(int, parts[1:]))
-    data.append([filename] + labels)
+# # Parsing the image data
+# data = []
+# for line in lines[2:]:
+#     parts = line.strip().split()
+#     filename = parts[0]
+#     labels = list(map(int, parts[1:]))
+#     data.append([filename] + labels)
 
-# Creating a DataFrame
-df = pd.DataFrame(data, columns=['Filename'] + attributes)
+# # Creating a DataFrame
+# df = pd.DataFrame(data, columns=['Filename'] + attributes)
 
 
 def load_celeb_attribute(file_path = 'Resource/list_attr_celeba.txt'):
