@@ -6,7 +6,7 @@ from source.data_utils import load_celeb_attribute
 import tqdm
 
 def compute_embedding(img_path):
-    device = torch.device("cuda")
+    device = torch.device("cuda") if torch.cuda.is_available() else "cpu"
     model, preprocess = clip.load('ViT-B/32', device)
 
     image = preprocess(Image.open(img_path)).unsqueeze(0).to(device)
@@ -18,7 +18,7 @@ def compute_embedding(img_path):
 
 def find_k_nearest(query, embedding_database, k=4):
     # Compute the cosine similarity between the input embedding and the database embeddings
-    device = torch.device("cuda")
+    device = torch.device("cuda") if torch.cuda.is_available() else "cpu"
     query = query.to(device)
     embedding_database = embedding_database.to(device)
 

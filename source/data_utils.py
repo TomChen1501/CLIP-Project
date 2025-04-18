@@ -50,7 +50,7 @@ def load_celeb_attribute(file_path = 'Resource/list_attr_celeba.txt'):
         return None
 
 def load_database_embeddings(image_dir='Resource/img_align_celeba/img_align_celeba', file_path='Resource/list_attr_celeba.txt'):
-    device = "cuda"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     model, preprocess = clip.load('ViT-B/32', device)
     
     df = load_celeb_attribute(file_path)
