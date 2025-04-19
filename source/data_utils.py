@@ -71,9 +71,12 @@ def load_database_embeddings(image_dir='Resource/img_align_celeba/img_align_cele
     return all_images_filename, encoded_features
 
 def ensure_file_exists(file_path, url):
+    if os.path.dirname(file_path):
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        
     if not os.path.exists(file_path):
         print(f"File {file_path} not found. Downloading from {url}...")
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        # os.makedirs(os.path.dirname(file_path), exist_ok=True)
         gdown.download(url, file_path, quiet=False)
         print(f"File {file_path} downloaded successfully.")
     else:

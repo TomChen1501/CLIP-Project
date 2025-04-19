@@ -21,8 +21,8 @@ app.add_middleware(
 # Ensure the necessary files exist before starting the server
 ensure_file_exists("Resource/list_attr_celeba.txt", "https://drive.google.com/uc?id=1FyDxSKdqfc3zbamWMyZxalGTpLZ70kfh")
 ensure_file_exists("Resource/img_align_celeba.zip", "https://drive.google.com/uc?id=1QoCujOf6xTGtXgasCZ_Fcp8e5tXLPMsA")
-ensure_file_exists("encoded_tensors.pt", "https://drive.google.com/uc?id=1Apj_3U8aEXQqr_2dBoE_TAJhzaB0vaY0")
-ensure_file_exists("all_image_embeddings.pt", "https://drive.google.com/uc?id=15z6Ah0EcbB_d6YTLaemYo8GHwrQPcNie")
+ensure_file_exists("embeddings/encoded_tensors.pt", "https://drive.google.com/uc?id=1Apj_3U8aEXQqr_2dBoE_TAJhzaB0vaY0")
+ensure_file_exists("embeddings/all_image_embeddings.pt", "https://drive.google.com/uc?id=15z6Ah0EcbB_d6YTLaemYo8GHwrQPcNie")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images") 
@@ -32,7 +32,7 @@ app.mount("/dataset_images", StaticFiles(directory="Resource/img_align_celeba/im
 @app.on_event("startup")
 def load_embeddings():
     global database_embeddings, all_images_filename
-    data = torch.load("all_image_embeddings.pt", weights_only=True)
+    data = torch.load("embeddings/all_image_embeddings.pt", weights_only=True)
     all_images_filename = data['filename']
     database_embeddings = data['embeddings']
 
