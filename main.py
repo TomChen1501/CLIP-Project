@@ -21,11 +21,12 @@ app.add_middleware(
 # Ensure the necessary files exist before starting the server
 ensure_file_exists("Resource/list_attr_celeba.txt", "https://drive.google.com/uc?id=1FyDxSKdqfc3zbamWMyZxalGTpLZ70kfh")
 ensure_file_exists("Resource/img_align_celeba.zip", "https://drive.google.com/uc?id=1QoCujOf6xTGtXgasCZ_Fcp8e5tXLPMsA")
+unzip_file("Resource/img_align_celeba.zip", "Resource/img_align_celeba")
 ensure_file_exists("embeddings/encoded_tensors.pt", "https://drive.google.com/uc?id=1Apj_3U8aEXQqr_2dBoE_TAJhzaB0vaY0")
 ensure_file_exists("embeddings/all_image_embeddings.pt", "https://drive.google.com/uc?id=15z6Ah0EcbB_d6YTLaemYo8GHwrQPcNie")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
-app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images") 
+# app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images") 
 app.mount("/dataset_images", StaticFiles(directory="Resource/img_align_celeba/img_align_celeba"), name="dataset_images") 
 
 # Pre-load your database embeddings at server start
