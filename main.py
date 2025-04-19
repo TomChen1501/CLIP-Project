@@ -29,11 +29,12 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images") 
 app.mount("/dataset_images", StaticFiles(directory="Resource/img_align_celeba/img_align_celeba"), name="dataset_images") 
 
+device = torch.device("cuda") if torch.cuda.is_available() else "cpu"
 # Pre-load your database embeddings at server start
 @app.on_event("startup")
 def load_embeddings():
     global database_embeddings, all_images_filename
-    data = torch.load("embeddings/all_image_embeddings.pt", weights_only=True)
+    data = torch.load("embeddings/all_image_embeddings.pt", weights_only=True, map_location=device)
     all_images_filename = data['filename']
     database_embeddings = data['embeddings']
 
