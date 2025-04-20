@@ -27,6 +27,14 @@ async def lifespan(app: FastAPI):
     app.state.all_images_filename = data["filename"]
     print("Embeddings loaded.")
 
+    # Ensure runtime folders exist before mounting
+    os.makedirs("uploaded_images", exist_ok=True)
+    
+    # Static serving
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+    app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
+    app.mount("/dataset_images", StaticFiles(directory="Resource/img_align_celeba/img_align_celeba"), name="dataset_images")
+
     yield
 
 # --- FastAPI app ---
@@ -40,13 +48,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Ensure runtime folders exist before mounting
-os.makedirs("uploaded_images", exist_ok=True)
-
-# Static serving
-app.mount("/static", StaticFiles(directory="static"), name="static")
-app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
-app.mount("/dataset_images", StaticFiles(directory="Resource/img_align_celeba/img_align_celeba"), name="dataset_images")
 
 # --- Route: frontend ---
 @app.get("/")
