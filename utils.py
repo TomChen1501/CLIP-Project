@@ -23,7 +23,7 @@ def find_k_nearest(query, embedding_database, k=4):
     embedding_database = embedding_database.to(device)
 
     # Match dtype explicitly to avoid issues
-    query = query.to(embedding_database.dtype)
+    query = query.to(dtype = embedding_database.dtype)
 
     query_norm = query / query.norm(dim=-1, keepdim=True)
     embedding_database_norm = embedding_database / embedding_database.norm(dim=-1, keepdim=True)
