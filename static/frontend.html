@@ -51,7 +51,11 @@
             animation: spin 1s linear infinite;
             margin: 0 auto 10px auto;
         }
-
+        #errorMessage {
+            color: red;
+            font-weight: bold;
+            margin-top: 20px;
+        }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -79,10 +83,10 @@
         <div id="uploadedImage"></div>
     </div>
 
-    <div id="errorMessage" style="color: red; margin-top: 20px;"></div>
-
     <div id="similarImagesSection">
         <h3>Most Similar Images:</h3>
+        <!-- ✅ Error Display -->
+        <div id="errorMessage"></div>
         <div id="results" style="display: flex; flex-wrap: wrap;"></div>
     </div>
 
@@ -107,11 +111,11 @@
                 <img src="${uploadedImageURL}" style="width: 200px; margin-bottom: 20px;" />
             `;
 
-            document.getElementById("errorMessage").textContent = error.message;
-
-            // Show loading
-            document.getElementById("loadingMessage").style.display = "block";
+            // Clear previous results and errors
+            const errorDiv = document.getElementById("errorMessage");
+            errorDiv.textContent = '';
             document.getElementById("results").innerHTML = '';
+            document.getElementById("loadingMessage").style.display = "block";
 
             try {
                 const response = await fetch('/upload/', {
@@ -128,13 +132,11 @@
                 displayResults(result.nearest_images);
             } catch (error) {
                 console.error("Upload error:", error);
-                const results = document.getElementById("results");
-                results.innerHTML = `<div style="color: red; font-weight: bold;">Error: ${error.message}</div>`;
+                errorDiv.textContent = `Error: ${error.message}`;
             } finally {
                 document.getElementById("loadingMessage").style.display = "none";
                 droppedFile = null;
             }
-
         }
 
         function displayResults(images) {
@@ -182,8 +184,7 @@
             dropZone.classList.remove('dragover');
             dropText.textContent = "Or drag and drop an image here";
             droppedFile = e.dataTransfer.files[0];
-
-            document.getElementById('fileInput').value = '';  // reset input
+            document.getElementById('fileInput').value = '';
             uploadImage();  // auto-upload on drop
         });
     </script>
