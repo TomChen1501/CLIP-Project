@@ -79,6 +79,8 @@
         <div id="uploadedImage"></div>
     </div>
 
+    <div id="errorMessage" style="color: red; margin-top: 20px;"></div>
+
     <div id="similarImagesSection">
         <h3>Most Similar Images:</h3>
         <div id="results" style="display: flex; flex-wrap: wrap;"></div>
@@ -105,6 +107,8 @@
                 <img src="${uploadedImageURL}" style="width: 200px; margin-bottom: 20px;" />
             `;
 
+            document.getElementById("errorMessage").textContent = error.message;
+
             // Show loading
             document.getElementById("loadingMessage").style.display = "block";
             document.getElementById("results").innerHTML = '';
@@ -115,14 +119,22 @@
                     body: formData,
                 });
 
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Server returned ${response.status}: ${errorText}`);
+                }
+
                 const result = await response.json();
                 displayResults(result.nearest_images);
             } catch (error) {
-                alert("Something went wrong. Please try again.");
+                console.error("Upload error:", error);
+                const results = document.getElementById("results");
+                results.innerHTML = `<div style="color: red; font-weight: bold;">Error: ${error.message}</div>`;
             } finally {
                 document.getElementById("loadingMessage").style.display = "none";
                 droppedFile = null;
             }
+
         }
 
         function displayResults(images) {
