@@ -48,9 +48,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# --- Route: header ---
+@app.head("/")
+async def header():
+    return JSONResponse({"message": "Welcome to the FastAPI server!"})
 
 # --- Route: frontend ---
-@app.get("/", methods=["GET", "HEAD"])
+@app.get("/")
 async def serve_frontend():
     return FileResponse("static/frontend.html")
 
