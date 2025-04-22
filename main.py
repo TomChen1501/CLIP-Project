@@ -50,7 +50,7 @@ app.add_middleware(
 
 
 # --- Route: frontend ---
-@app.get("/")
+@app.get("/", methods=["GET", "HEAD"])
 async def serve_frontend():
     return FileResponse("static/frontend.html")
 
