@@ -15,11 +15,11 @@ async def lifespan(app: FastAPI):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Ensure necessary files exist
-    # ensure_file_exists("Resource/list_attr_celeba.txt", "https://drive.google.com/uc?id=1FyDxSKdqfc3zbamWMyZxalGTpLZ70kfh")
-    # ensure_file_exists("Resource/img_align_celeba.zip", "https://drive.google.com/uc?id=1QoCujOf6xTGtXgasCZ_Fcp8e5tXLPMsA")
-    # unzip_file("Resource/img_align_celeba.zip", "Resource/img_align_celeba")
-    # ensure_file_exists("Resource/encoded_tensors.pt", "https://drive.google.com/uc?id=1Apj_3U8aEXQqr_2dBoE_TAJhzaB0vaY0")
-    # ensure_file_exists("Resource/all_image_embeddings.pt", "https://drive.google.com/uc?id=15z6Ah0EcbB_d6YTLaemYo8GHwrQPcNie")
+    ensure_file_exists("Resource/list_attr_celeba.txt", "https://drive.google.com/uc?id=1FyDxSKdqfc3zbamWMyZxalGTpLZ70kfh")
+    ensure_file_exists("Resource/img_align_celeba.zip", "https://drive.google.com/uc?id=1QoCujOf6xTGtXgasCZ_Fcp8e5tXLPMsA")
+    unzip_file("Resource/img_align_celeba.zip", "Resource/img_align_celeba")
+    ensure_file_exists("Resource/encoded_tensors.pt", "https://drive.google.com/uc?id=1Apj_3U8aEXQqr_2dBoE_TAJhzaB0vaY0")
+    ensure_file_exists("Resource/all_image_embeddings.pt", "https://drive.google.com/uc?id=15z6Ah0EcbB_d6YTLaemYo8GHwrQPcNie")
 
     base_dir = os.path.dirname(os.path.abspath(__file__))
     embedding_path = os.path.join(base_dir, "Resource", "all_image_embeddings.pt")
