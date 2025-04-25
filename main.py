@@ -21,8 +21,10 @@ async def lifespan(app: FastAPI):
     # ensure_file_exists("Resource/encoded_tensors.pt", "https://drive.google.com/uc?id=1Apj_3U8aEXQqr_2dBoE_TAJhzaB0vaY0")
     # ensure_file_exists("Resource/all_image_embeddings.pt", "https://drive.google.com/uc?id=15z6Ah0EcbB_d6YTLaemYo8GHwrQPcNie")
 
-    print("Loading embeddings...")
-    data = torch.load("Resource/all_image_embeddings.pt", weights_only=True, map_location=device)
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    embedding_path = os.path.join(base_dir, "Resource", "all_image_embeddings.pt")
+    print(f"Loading embeddings from {embedding_path}...")
+    data = torch.load(embedding_path, weights_only=True, map_location=device)
     app.state.database_embeddings = data["embeddings"].to(torch.float32)
     app.state.all_images_filename = data["filename"]
     print("Embeddings loaded.")
