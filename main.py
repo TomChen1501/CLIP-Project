@@ -33,7 +33,7 @@ async def lifespan(app: FastAPI):
     # Static serving
     app.mount("/static", StaticFiles(directory="static"), name="static")
     app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
-    app.mount("/dataset_images", StaticFiles(directory="Resource/img_align_celeba/img_align_celeba"), name="dataset_images")
+    app.mount("/dataset_images", StaticFiles(directory="Resource/img_align_celeba"), name="dataset_images")
 
     yield
 
