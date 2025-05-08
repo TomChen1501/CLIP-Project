@@ -6,8 +6,11 @@ from contextlib import asynccontextmanager
 import shutil
 import os
 import torch
+import joblib
+from glob import glob
 from utils import compute_embedding, find_k_nearest
 from source.data_utils import ensure_file_exists, unzip_file
+from svmClassify import CLIPAttributeSVM
 
 # --- Lifespan setup: Runs once when server starts ---
 @asynccontextmanager
@@ -15,19 +18,31 @@ async def lifespan(app: FastAPI):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Ensure necessary files exist
-    ensure_file_exists("Resource/list_attr_celeba.txt", "https://drive.google.com/uc?id=1FyDxSKdqfc3zbamWMyZxalGTpLZ70kfh")
-    ensure_file_exists("Resource/img_align_celeba.zip", "https://drive.google.com/uc?id=1QoCujOf6xTGtXgasCZ_Fcp8e5tXLPMsA")
-    unzip_file("Resource/img_align_celeba.zip", "Resource/img_align_celeba")
-    ensure_file_exists("Resource/encoded_tensors.pt", "https://drive.google.com/uc?id=1Apj_3U8aEXQqr_2dBoE_TAJhzaB0vaY0")
-    ensure_file_exists("Resource/all_image_embeddings.pt", "https://drive.google.com/uc?id=15z6Ah0EcbB_d6YTLaemYo8GHwrQPcNie")
+    # ensure_file_exists("Resource/list_attr_celeba.txt", "https://drive.google.com/uc?id=1FyDxSKdqfc3zbamWMyZxalGTpLZ70kfh")
+    # ensure_file_exists("Resource/img_align_celeba.zip", "https://drive.google.com/uc?id=1QoCujOf6xTGtXgasCZ_Fcp8e5tXLPMsA")
+    # unzip_file("Resource/img_align_celeba.zip", "Resource/img_align_celeba")
+    # ensure_file_exists("Resource/encoded_tensors.pt", "https://drive.google.com/uc?id=1Apj_3U8aEXQqr_2dBoE_TAJhzaB0vaY0")
+    # ensure_file_exists("Resource/all_image_embeddings.pt", "https://drive.google.com/uc?id=15z6Ah0EcbB_d6YTLaemYo8GHwrQPcNie")
 
     base_dir = os.path.dirname(os.path.abspath(__file__))
     embedding_path = os.path.join(base_dir, "Resource", "all_image_embeddings.pt")
-    print(f"Loading embeddings from {embedding_path}...")
+    # print(f"Loading embeddings from {embedding_path}...")
     data = torch.load(embedding_path, weights_only=True, map_location=device)
     app.state.database_embeddings = data["embeddings"].to(torch.float32)
     app.state.all_images_filename = data["filename"]
-    print("Embeddings loaded.")
+    # print("Embeddings loaded.")
+
+    # load all SVM models
+    model_dir = os.path.join(base_dir, "trained_models")
+    app.state.svm_models = {} #Dict[str, CLIPAttributeSVM]
+
+    for model_path in glob(os.path.join(model_dir, "svm_*.pkl")):
+        engine = CLIPAttributeSVM()
+        attribute = os.path.basename(model_path).split("svm_")[1].split("_model")[0]
+        print(f"Loading SVM model for {attribute} from {model_path}...")
+        engine.load_model(model_path)
+        app.state.svm_models[attribute] = engine.model
+        print(f"Model for {attribute} loaded.")
 
     # Ensure runtime folders exist before mounting
     os.makedirs("uploaded_images", exist_ok=True)
@@ -71,6 +86,15 @@ async def upload_image(file: UploadFile = File(...), request: Request = None):
 
     # Compute embedding and find matches
     embedding_vector = compute_embedding(file_path)
+
+    # Use SVM model to predict attributes
+    predictions = {}
+    for attribute, model in request.app.state.svm_models.items():
+        prediction = model.predict(embedding_vector.cpu().numpy())
+        predictions[attribute] = bool(prediction)
+    print(f"attribute prediction: {prediction}")
+
+    # Find K nearest images
     nearest_images = find_k_nearest(
         embedding_vector,
         request.app.state.database_embeddings,
@@ -82,4 +106,7 @@ async def upload_image(file: UploadFile = File(...), request: Request = None):
         for index in nearest_images
     ]
 
-    return JSONResponse({"nearest_images": result_urls})
+    return JSONResponse({
+        "nearest_images": result_urls,
+        "predicted_attributes": predictions    
+    })

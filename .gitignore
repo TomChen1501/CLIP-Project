@@ -6,3 +6,5 @@ Resource/
 test.*
 clip_project_env/
 *.pt
+fig/
+trained_models/

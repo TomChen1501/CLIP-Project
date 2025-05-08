@@ -7,25 +7,6 @@ from tqdm import tqdm
 import gdown
 import zipfile
 
-# # Reading data from the file
-# file_path = 'Resource/list_attr_celeba.txt'
-# with open(file_path, 'r') as file:
-#     lines = file.readlines()
-
-# # Extracting attribute names
-# attributes = lines[1].strip().split()
-
-# # Parsing the image data
-# data = []
-# for line in lines[2:]:
-#     parts = line.strip().split()
-#     filename = parts[0]
-#     labels = list(map(int, parts[1:]))
-#     data.append([filename] + labels)
-
-# # Creating a DataFrame
-# df = pd.DataFrame(data, columns=['Filename'] + attributes)
-
 
 def load_celeb_attribute(file_path = 'Resource/list_attr_celeba.txt'):
     try:
@@ -91,6 +72,7 @@ def unzip_file(zip_path, extract_dir):
     else:
         print(f"{extract_dir} already exists, skipping unzip.")
 
-def main():
+if __name__ == "__main__":
     df = load_celeb_attribute()
     print(df.head())
+    

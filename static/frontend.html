@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>K-Nearest Image Search Demo</title>
+    <title>Individual project Demo</title>
     <style>
         body {
             font-family: sans-serif;
@@ -64,7 +64,11 @@
 </head>
 <body>
     <h2>Upload an Image</h2>
-    <input type="file" id="fileInput" accept="image/*" style="margin-bottom: 10px;" />
+    <div style="margin-bottom: 10px;">
+        <input type="file" id="fileInput" accept="image/*" style="display: none;" />
+        <button onclick="document.getElementById('fileInput').click()">Choose File</button>
+        <span id="fileName">No file selected</span>
+    </div>
     <button onclick="uploadImage()">Upload</button>
 
     <!-- Drag-and-Drop Upload Area -->
@@ -83,9 +87,14 @@
         <div id="uploadedImage"></div>
     </div>
 
+    <div id="predictedAttributesSection">
+        <h3>Predicted Attributes:</h3>
+        <ul id="predictedAttributes"></ul>
+    </div>
+
     <div id="similarImagesSection">
         <h3>Most Similar Images:</h3>
-        <!-- ✅ Error Display -->
+        <!-- Error Display -->
         <div id="errorMessage"></div>
         <div id="results" style="display: flex; flex-wrap: wrap;"></div>
     </div>
@@ -129,7 +138,7 @@
                 }
 
                 const result = await response.json();
-                displayResults(result.nearest_images);
+                displayResults(result.nearest_images, result.predicted_attributes);
             } catch (error) {
                 console.error("Upload error:", error);
                 errorDiv.textContent = `Error: ${error.message}`;
@@ -139,7 +148,8 @@
             }
         }
 
-        function displayResults(images) {
+        function displayResults(images, attributes) {
+            // Display similar images
             const results = document.getElementById('results');
             results.innerHTML = '';
             images.forEach(imgPath => {
@@ -162,6 +172,16 @@
                 box.appendChild(label);
                 results.appendChild(box);
             });
+
+            // Display predicted attributes
+            const attributesList = document.getElementById('predictedAttributes');
+            attributesList.innerHTML = ''; 
+
+            for (const [key, value] of Object.entries(attributes)){
+                const li = document.createElement('li');
+                li.textContent = `${key}: ${value}`;
+                attributesList.appendChild(li);
+            }
         }
 
         // Drag and Drop Functionality
@@ -187,6 +207,12 @@
             document.getElementById('fileInput').value = '';
             uploadImage();  // auto-upload on drop
         });
+
+        document.getElementById('fileInput').addEventListener('change', function() {
+            const fileName = this.files[0] ? this.files[0].name : 'No file selected';
+            document.getElementById('fileName').textContent = fileName;
+        });
+        
     </script>
 </body>
 </html>
