@@ -98,7 +98,7 @@ def train_model(model, train_loader, val_loader, num_epochs=1000, lr=0.001, devi
         avg_val_loss = total_val_loss / len(val_loader)
         val_losses.append(avg_val_loss)
 
-        print(f'Epoch {epoch+1}/{num_epochs} | Train loss: {avg_train_loss:.6f} | Val loss: {avg_val_loss:.6f}')
+        # print(f'Epoch {epoch+1}/{num_epochs} | Train loss: {avg_train_loss:.6f} | Val loss: {avg_val_loss:.6f}')
 
     return train_losses, val_losses
 

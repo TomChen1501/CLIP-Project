@@ -1,10 +1,10 @@
 import torch
 import sys
 import os
-from mlp.inference_wrapper import AttributeTransferEngine
+from models.mlp.inference_wrapper import AttributeTransferEngine
 from source.data_utils import load_celeb_attribute
 
-def train_all_attributes(df, embeddings, attributes_to_train, save_dir="trained_models", hidden_dim=256, num_epochs=100, lr=0.001):
+def train_all_attributes(df, embeddings, attributes_to_train, save_dir="models/trained_models", hidden_dim=256, num_epochs=100, lr=0.001):
     os.makedirs(save_dir, exist_ok=True)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     embedding_dim = embeddings.shape[1]

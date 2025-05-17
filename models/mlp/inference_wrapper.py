@@ -1,5 +1,5 @@
 import torch
-from mlp.mlp_model import *
+from models.mlp.mlp_model import *
 
 class AttributeTransferEngine:
     def __init__(self, embedding_dim: int = 512, hidden_dim: int = 256, device: str = None):

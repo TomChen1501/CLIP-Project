@@ -71,30 +71,33 @@
     </div>
     <button onclick="uploadImage()">Upload</button>
 
-    <!-- Drag-and-Drop Upload Area -->
     <div id="dropZone" class="drop-zone">
         <span id="dropText">Or drag and drop an image here</span>
     </div>
 
-    <!-- Loading Message With Spinner -->
     <div id="loadingMessage" class="loading">
         <div class="spinner"></div>
         <p>Loading... Please wait.</p>
     </div>
 
-    <div id="uploadedImageSection">
-        <h3>Uploaded Image:</h3>
-        <div id="uploadedImage"></div>
-    </div>
-
-    <div id="predictedAttributesSection">
-        <h3>Predicted Attributes:</h3>
-        <ul id="predictedAttributes"></ul>
-    </div>
+    <div style="display: flex; align-items: flex-start; gap: 40px; margin-top: 30px;">
+        <div>
+            <h3>Uploaded Image:</h3>
+            <div id="uploadedImage"></div>
+        </div>
+        <div>
+            <h3>Predicted Attributes:</h3>
+            <table id="predictedAttributes" style="border-collapse: collapse;">
+                <thead>
+                    <tr><th style="text-align:left; padding: 4px;">Attribute</th><th style="text-align:left; padding: 4px;">Value</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>    
 
     <div id="similarImagesSection">
         <h3>Most Similar Images:</h3>
-        <!-- Error Display -->
         <div id="errorMessage"></div>
         <div id="results" style="display: flex; flex-wrap: wrap;"></div>
     </div>
@@ -173,14 +176,28 @@
                 results.appendChild(box);
             });
 
-            // Display predicted attributes
-            const attributesList = document.getElementById('predictedAttributes');
-            attributesList.innerHTML = ''; 
+            const attrTableBody = document.querySelector('#predictedAttributes tbody');
+            attrTableBody.innerHTML = '';
 
-            for (const [key, value] of Object.entries(attributes)){
-                const li = document.createElement('li');
-                li.textContent = `${key}: ${value}`;
-                attributesList.appendChild(li);
+            for (const [key, value] of Object.entries(attributes)) {
+                const row = document.createElement('tr');
+
+                const keyCell = document.createElement('td');
+                keyCell.textContent = key;
+                keyCell.style.padding = '4px';
+
+                const valueCell = document.createElement('td');
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = value;
+                checkbox.onclick = (e) => e.preventDefault();
+                checkbox.style.accentColor = value ? 'green' : 'red';
+                valueCell.appendChild(checkbox);
+                valueCell.style.padding = '4px';
+
+                row.appendChild(keyCell);
+                row.appendChild(valueCell);
+                attrTableBody.appendChild(row);
             }
         }
 
@@ -212,7 +229,7 @@
             const fileName = this.files[0] ? this.files[0].name : 'No file selected';
             document.getElementById('fileName').textContent = fileName;
         });
-        
+
     </script>
 </body>
 </html>
