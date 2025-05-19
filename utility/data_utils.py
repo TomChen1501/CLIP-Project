@@ -27,10 +27,10 @@ def load_celeb_attribute(file_path = 'Resource/list_attr_celeba.txt'):
     
     except FileNotFoundError:
         print(f"File '{file_path}' not found. Please check the file path.")
-        return None
+        raise FileNotFoundError
     except Exception as e:
         print(f"An error:{e} occurred. Please try again.")
-        return None
+        raise e
 
 def load_database_embeddings(image_dir='Resource/img_align_celeba/img_align_celeba', file_path='Resource/list_attr_celeba.txt'):
     device = "cuda" if torch.cuda.is_available() else "cpu"

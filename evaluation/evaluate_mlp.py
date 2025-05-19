@@ -1,8 +1,10 @@
 import torch
 import os
 from models.mlp.inference_wrapper import AttributeTransferEngine
-from source.data_utils import load_celeb_attribute
+from utility.data_utils import load_celeb_attribute
 from torch.nn.functional import cosine_similarity
+import numpy as np
+
 
 def evaluate_baseline(source, target, baseline_type):
     with torch.no_grad():
@@ -25,13 +27,12 @@ def evaluate_baseline(source, target, baseline_type):
         cos = cosine_similarity(predicted, actual, dim=1).mean().item()
         return mse, cos
 
-def evaluate_all(df, embeddings, attributes_to_train, hidden_dim=256, num_epochs=100, lr=0.001):
+def evaluate_all(df, embeddings, attributes_to_train, hidden_dim=256, num_epochs=20, lr=0.001, seeds=[1, 10, 20, 30, 40]):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     embedding_dim = embeddings.shape[1]
 
     for attribute in attributes_to_train:
         print(f"\n=== Evaluating Attribute: {attribute} ===")
-        engine = AttributeTransferEngine(embedding_dim=embedding_dim, hidden_dim=hidden_dim, device=device)
 
         pos_indices = df[df[attribute] == 1].index.tolist()
         neg_indices = df[df[attribute] == -1].index.tolist()
@@ -43,17 +44,23 @@ def evaluate_all(df, embeddings, attributes_to_train, hidden_dim=256, num_epochs
         X_pos = embeddings[pos_indices]
         X_neg = embeddings[neg_indices]
 
-        # MLP: Neg → Pos
-        test_loss, cosine_sim = engine.train_on_pair(X_neg, X_pos, num_epochs=num_epochs, lr=lr)
-        print(f"MLP (Neg → Pos)        | MSE: {test_loss:.4f} | CosSim: {cosine_sim:.4f}")
+        # Evaluate both directions
+        def run_direction(src, tgt):
+            losses, sims = [], []
+            for seed in seeds:
+                torch.manual_seed(seed)
+                engine = AttributeTransferEngine(embedding_dim=embedding_dim, hidden_dim=hidden_dim, device=device)
+                mse, cos = engine.train_on_pair(src, tgt, num_epochs=num_epochs, lr=lr)
+                losses.append(mse)
+                sims.append(cos)
+            return np.mean(losses), np.std(losses), np.mean(sims), np.std(sims)
 
-        # Baseline: Identity (Neg → Neg)
-        mse_id, cos_id = evaluate_baseline(X_neg, X_neg, "identity")
-        print(f"Identity Baseline      | MSE: {mse_id:.4f} | CosSim: {cos_id:.4f}")
+        mse1, std1, cos1, cstd1 = run_direction(X_neg, X_pos)
+        print(f"MLP (Neg → Pos)        | MSE: {mse1:.4f} ± {std1:.4f} | CosSim: {cos1:.4f} ± {cstd1:.4f}")
 
-        # Baseline: Mean Shift (Neg → Pos)
-        mse_mv, cos_mv = evaluate_baseline(X_neg, X_pos, "mean_shift")
-        print(f"Mean Shift Baseline    | MSE: {mse_mv:.4f} | CosSim: {cos_mv:.4f}")
+        mse2, std2, cos2, cstd2 = run_direction(X_pos, X_neg)
+        print(f"MLP (Pos → Neg)        | MSE: {mse2:.4f} ± {std2:.4f} | CosSim: {cos2:.4f} ± {cstd2:.4f}")
+
 
 if __name__ == "__main__":
     df = load_celeb_attribute()
@@ -61,4 +68,12 @@ if __name__ == "__main__":
     embeddings = d['embeddings']
 
     attributes_to_train = ['Smiling', 'Young', 'Male', 'Bald']
-    evaluate_all(df, embeddings, attributes_to_train)
+    evaluate_all(
+        df=df,
+        embeddings=embeddings,
+        attributes_to_train=attributes_to_train,
+        hidden_dim=256,
+        num_epochs=10,
+        lr=0.0001,
+        seeds=[1, 40, 200, 772, 114514]
+    )

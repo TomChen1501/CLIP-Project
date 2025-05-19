@@ -2,7 +2,7 @@ import torch
 import sys
 import os
 from models.mlp.inference_wrapper import AttributeTransferEngine
-from source.data_utils import load_celeb_attribute
+from utility.data_utils import load_celeb_attribute
 
 def train_all_attributes(df, embeddings, attributes_to_train, save_dir="models/trained_models", hidden_dim=256, num_epochs=100, lr=0.001):
     os.makedirs(save_dir, exist_ok=True)

@@ -1,7 +1,7 @@
 import torch
 import itertools
 from models.mlp.inference_wrapper import AttributeTransferEngine
-from source.data_utils import load_celeb_attribute
+from utility.data_utils import load_celeb_attribute
 from torch.nn.functional import cosine_similarity
 import numpy as np
 
@@ -35,7 +35,8 @@ if __name__ == "__main__":
     X_neg = embeddings[neg_indices]
     embedding_dim = embeddings.shape[1]
 
-    hidden_dims = [64, 128, 256, 512]
+    # hidden_dims = [64, 128, 256, 512]
+    hidden_dims = [128, 256]
     learning_rates = [1e-4, 5e-4, 1e-3, 5e-3]
 
     print(f"{'Hidden':>6} | {'LR':>7} | {'MSE (mean ± std)':>20} | {'CosSim (mean ± std)':>24}")

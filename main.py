@@ -8,11 +8,11 @@ import os
 import torch
 import joblib
 from glob import glob
-from utils import compute_embedding, find_k_nearest
-from source.data_utils import ensure_file_exists, unzip_file
+from utility.utils import compute_embedding, find_k_nearest
+from utility.data_utils import ensure_file_exists, unzip_file
 from models.svm.svmClassify import CLIPAttributeSVM
 
-# --- Lifespan setup: Runs once when server starts ---
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -54,28 +54,24 @@ async def lifespan(app: FastAPI):
 
     yield
 
-# --- FastAPI app ---
 app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For production, replace "*" with your domain
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# --- Route: header ---
 @app.head("/")
 async def header():
     return JSONResponse({"message": "Welcome to the FastAPI server!"})
 
-# --- Route: frontend ---
 @app.get("/")
 async def serve_frontend():
     return FileResponse("interface/static/frontend.html")
 
-# --- Route: upload and return K nearest ---
 @app.post("/upload/")
 async def upload_image(file: UploadFile = File(...), request: Request = None):
     upload_folder = "uploaded_images"
@@ -84,17 +80,14 @@ async def upload_image(file: UploadFile = File(...), request: Request = None):
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    # Compute embedding and find matches
     embedding_vector = compute_embedding(file_path)
 
-    # Use SVM model to predict attributes
     predictions = {}
     for attribute, model in request.app.state.svm_models.items():
         prediction = model.predict(embedding_vector.cpu().numpy())
         predictions[attribute] = bool(prediction)
     print(f"attribute prediction: {predictions}")
 
-    # Find K nearest images
     nearest_images = find_k_nearest(
         embedding_vector,
         request.app.state.database_embeddings,

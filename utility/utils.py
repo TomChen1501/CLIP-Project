@@ -2,11 +2,20 @@ import torch
 import clip
 from PIL import Image
 import os
-from source.data_utils import load_celeb_attribute
+from utility.data_utils import load_celeb_attribute
 import tqdm
 
 def compute_embedding(img_path):
+    try:
+        img = Image.open(img_path)
+    except FileNotFoundError:
+        raise
+    
+    if img.mode != 'RGB':
+        img = img.convert('RGB')
+
     device = torch.device("cuda") if torch.cuda.is_available() else "cpu"
+
     model, preprocess = clip.load('ViT-B/32', device)
 
     image = preprocess(Image.open(img_path)).unsqueeze(0).to(device)
@@ -15,6 +24,7 @@ def compute_embedding(img_path):
         image_features /= image_features.norm(dim=-1, keepdim=True)
 
     return image_features
+    
 
 def find_k_nearest(query, embedding_database, k=4):
     # Compute the cosine similarity between the input embedding and the database embeddings

@@ -115,7 +115,7 @@ def evaluate_model(model, test_loader, device='cpu'):
             total_test_loss += loss.item()
 
     avg_test_loss = total_test_loss / len(test_loader)
-    print(f'Average Test Loss: {avg_test_loss:.6f}')
+    # print(f'Average Test Loss: {avg_test_loss:.6f}')
     return avg_test_loss
 
 
@@ -133,7 +133,7 @@ def cosine_similarity_evaluation(model, test_loader, device='cpu'):
 
     cos_similarities = torch.cat(cos_similarities)
     mean_cos_sim = cos_similarities.mean().item()
-    print(f'Mean Cosine Similarity on Test Set: {mean_cos_sim:.4f}')
+    # print(f'Mean Cosine Similarity on Test Set: {mean_cos_sim:.4f}')
     return mean_cos_sim
 
 if __name__ == "__main__":

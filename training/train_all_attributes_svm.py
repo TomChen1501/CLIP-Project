@@ -1,7 +1,7 @@
 import os
 import torch
 from models.svm.svmClassify import CLIPAttributeSVM
-from source.data_utils import load_celeb_attribute
+from utility.data_utils import load_celeb_attribute
 
 data = torch.load('Resource/all_image_embeddings.pt', weights_only=True)
 df = load_celeb_attribute()

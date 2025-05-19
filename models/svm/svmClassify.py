@@ -7,6 +7,9 @@ from sklearn.metrics import classification_report, accuracy_score, f1_score
 
 class CLIPAttributeSVM:
     def __init__(self, kernel="linear", C=1.0, test_size=0.2, seed=114514):
+        valid_kernels = ("linear", "poly", "rbf", "sigmoid", "precomputed")
+        if kernel not in valid_kernels:
+            raise ValueError(f"Invalid kernel '{kernel}'. Choose from {valid_kernels}.")
         self.kernel = kernel
         self.C = C
         self.test_size = test_size

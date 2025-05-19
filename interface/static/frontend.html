@@ -63,6 +63,9 @@
     </style>
 </head>
 <body>
+    <div style="border-left: 4px solid #ccc; padding-left: 16px; margin-bottom: 30px;">
+        <p><strong>Instructions:</strong> Upload a facial image using the button or drag-and-drop. The system will predict facial attributes and return the most similar faces. Use the <em>Clear</em> button to reset the interface. Only image formats like PNG or JPG are supported.</p>
+    </div>    
     <h2>Upload an Image</h2>
     <div style="margin-bottom: 10px;">
         <input type="file" id="fileInput" accept="image/*" style="display: none;" />
@@ -70,6 +73,7 @@
         <span id="fileName">No file selected</span>
     </div>
     <button onclick="uploadImage()">Upload</button>
+    <button onclick="clearImage()">Clear</button>
 
     <div id="dropZone" class="drop-zone">
         <span id="dropText">Or drag and drop an image here</span>
@@ -110,7 +114,12 @@
             const file = droppedFile || input.files[0];
 
             if (!file) {
-                alert("Please select or drop a file first.");
+                document.getElementById("errorMessage").textContent = "Please select or drop an image file.";
+                return;
+            }
+
+            if (!file.type.startsWith("image/")) {
+                document.getElementById("errorMessage").textContent = "Invalid file type. Please upload an image.";
                 return;
             }
 
@@ -199,6 +208,16 @@
                 row.appendChild(valueCell);
                 attrTableBody.appendChild(row);
             }
+        }
+
+        function clearImage() {
+            droppedFile = null;
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileName').textContent = 'No file selected';
+            document.getElementById('uploadedImage').innerHTML = '';
+            document.getElementById('results').innerHTML = '';
+            document.querySelector('#predictedAttributes tbody').innerHTML = '';
+            document.getElementById('errorMessage').textContent = '';
         }
 
         // Drag and Drop Functionality

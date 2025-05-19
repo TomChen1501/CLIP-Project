@@ -2,7 +2,7 @@ import os
 import torch
 import numpy as np
 from models.svm.svmClassify import CLIPAttributeSVM
-from source.data_utils import load_celeb_attribute
+from utility.data_utils import load_celeb_attribute
 from sklearn.dummy import DummyClassifier
 from sklearn.metrics import accuracy_score, f1_score, classification_report
 from sklearn.model_selection import train_test_split
